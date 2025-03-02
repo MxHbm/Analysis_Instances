@@ -14,6 +14,11 @@ class Item:
         self.height = height
         self.mass = mass
         self.volume = length * width * height
+        self.relative_width = 0
+        self.relative_height = 0
+        self.relative_length = 0
+        self.relative_mass = 0
+        self.relative_volume = 0
 
     def __print__(self): 
     
@@ -25,6 +30,14 @@ class Item:
         print("Mass: ", self.mass)
         print("Volume: ", self.volume)
 
+    def caclulate_relative_values(self, cargoSpace_Length, cargoSpace_Width, cargoSpace_Height, vehicle_capacity):
+
+        self.relative_width = self.width / cargoSpace_Width
+        self.relative_height = self.height / cargoSpace_Height
+        self.relative_mass = self.mass / vehicle_capacity
+        self.relative_volume = self.volume / (cargoSpace_Length * cargoSpace_Width * cargoSpace_Height)
+        self.relative_length = self.length / cargoSpace_Length
+
     def to_dict(self):
         """ Convert instance data to a dictionary for DataFrame storage """
         return {
@@ -35,7 +48,12 @@ class Item:
             "Width": self.width,
             "Height": self.height,
             "Mass": self.mass,
-            "Volume": self.volume
+            "Volume": self.volume,
+            "Relative Width": self.relative_width,
+            "Relative Height": self.relative_height,
+            "Relative Length": self.relative_length,
+            "Relative Mass": self.relative_mass,
+            "Relative Volume": self.relative_volume
         }
 
 
@@ -67,7 +85,7 @@ class Demand:
         }
 
 class Instance:
-    def __init__(self, file_path):
+    def __init__(self, file_path: str,  standardize: bool):
         """ Initialize instance by reading the file and extracting data """
         self.file_path = file_path
         self.folder_name = os.path.basename(os.path.dirname(file_path))
@@ -101,6 +119,9 @@ class Instance:
         self.items = pd.DataFrame([item.to_dict() for item in self.items])
         self.demands = pd.DataFrame([demand.to_dict() for demand in self.demands])
         self.aggregated_demands = pd.DataFrame(self.aggregated_demands)
+
+        if standardize:
+            self.standardize_data()
 
     def parse_file(self):
         """ Parses the instance file to extract relevant details """
@@ -153,6 +174,7 @@ class Instance:
                     elif section == "ITEMS":
                         # Extract item details
                         item = Item(self.folder_name, self.name, parts[0], float(parts[1])/self.divider, float(parts[2])/self.divider, float(parts[3])/self.divider, float(parts[4]))
+                        item.caclulate_relative_values(self.cargoSpace_Length, self.cargoSpace_Width, self.cargoSpace_Height, self.vehicle_capacity)
                         self.items.append(item)
 
                     elif section == "DEMANDS":
@@ -199,6 +221,12 @@ class Instance:
         self.vehicle_lower_bound_mass = self.vehicle_lower_bound_mass / self.vehicle_capacity
         self.vehicle_coverage_mass = self.vehicle_lower_bound_volume / self.num_vehicles
         self.vehicle_coverage_volume = self.vehicle_lower_bound_volume / self.num_vehicles
+
+    def standardize_data(self):
+
+        for column in ['Length', 'Width', 'Height', 'Mass', 'Volume']:
+            column_name = f"{column}_standardized"
+            self.items[column_name] = (self.items[column] - self.items[column].mean()) / self.items[column].std()
 
     def to_dict(self):
         """ Convert instance data to a dictionary for DataFrame storage """
