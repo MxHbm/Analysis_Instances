@@ -9,6 +9,12 @@ __pychache__
 # C extensions
 *.so
 
+# All train_data files
+Train_data/
+
+.DS_Store
+*.DS_Store
+
 # Distribution / packaging
 .Python
 build/

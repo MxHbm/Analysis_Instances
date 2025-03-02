@@ -4,7 +4,7 @@ import numpy as np
 
 class Item: 
 
-    def __init__(self, folder_name:str, instance_name:str, type:str, length:float, width:float, height:float, mass:float):
+    def __init__(self, folder_name:str, instance_name:str, type:str, length:float, width:float, height:float, mass:float, fragility:int):
         """ Initialize instance by reading the file and extracting data """
         self.folder_name = folder_name
         self.instance_name = instance_name
@@ -13,6 +13,7 @@ class Item:
         self.width = width
         self.height = height
         self.mass = mass
+        self.fragility = fragility
         self.volume = length * width * height
         self.relative_width = 0
         self.relative_height = 0
@@ -48,6 +49,7 @@ class Item:
             "Width": self.width,
             "Height": self.height,
             "Mass": self.mass,
+            "Fragility": self.fragility,
             "Volume": self.volume,
             "Relative Width": self.relative_width,
             "Relative Height": self.relative_height,
@@ -173,7 +175,7 @@ class Instance:
 
                     elif section == "ITEMS":
                         # Extract item details
-                        item = Item(self.folder_name, self.name, parts[0], float(parts[1])/self.divider, float(parts[2])/self.divider, float(parts[3])/self.divider, float(parts[4]))
+                        item = Item(self.folder_name, self.name, parts[0], float(parts[1])/self.divider, float(parts[2])/self.divider, float(parts[3])/self.divider, float(parts[4]),int(parts[5]))
                         item.caclulate_relative_values(self.cargoSpace_Length, self.cargoSpace_Width, self.cargoSpace_Height, self.vehicle_capacity)
                         self.items.append(item)
 
@@ -242,7 +244,7 @@ class Instance:
             "Cargo Length": self.cargoSpace_Length,
             "Cargo Width": self.cargoSpace_Width,
             "Cargo Height": self.cargoSpace_Height,
-            "Cargo Volume ": round(self.cargo_volume,2),
+            "Cargo Volume": round(self.cargo_volume,2),
             "Vehicle LB Volume": round(self.vehicle_lower_bound_volume,2),
             "Vehicle LB Mass": round(self.vehicle_lower_bound_mass,2),
             "Vehicle Coverage Mass": round(self.vehicle_coverage_mass,2),
