@@ -22,7 +22,8 @@ class Item:
         self.relative_volume = 0
 
     def __print__(self): 
-    
+        ''' Prints all necessaey information about item'''
+
         print("Instance Name: ", self.instance_name)
         print("Type: ", self.type)
         print("Length: ", self.length)
@@ -32,6 +33,14 @@ class Item:
         print("Volume: ", self.volume)
 
     def caclulate_relative_values(self, cargoSpace_Length, cargoSpace_Width, cargoSpace_Height, vehicle_capacity):
+        ''' Calculate relative values (item geometry)
+          in comparison to vehicle geometry for item
+        Args:
+            cargoSpace_Length (float): Length of the cargo space
+            cargoSpace_Width (float): Width of the cargo space
+            cargoSpace_Height (float): Height of the cargo space
+            vehicle_capacity (float): Vehicle capacity
+        '''
 
         self.relative_width = self.width / cargoSpace_Width
         self.relative_height = self.height / cargoSpace_Height
@@ -101,27 +110,26 @@ class Instance:
         self.cargoSpace_Width = 0
         self.cargoSpace_Height = 0
 
-        self.items = []  # Store item details for calculations
-        self.demands = []  # Store customer demands
+        #Create emptly lists to store items and demands
+        self.items = []  
+        self.demands = []  
         self.aggregated_demands = []
 
-        # Divider for unifiying units 
-        if self.folder_name in ["Ceschia_et_al_2013","Moura_Oliveira_2009"]:
-            self.divider = 10
-        else: 
-            self.divider = 1 # Default value is 1, no need to change for most instances
-
+        # Define divider for unifying units in different instances
+        self.define_Divider()
+        
+        #Load Data from file
         self.parse_file()
 
-        #Calculate cargo volume
-        self.calculate_complete_volume()
-
+        #Calculate lower bounds for vehicles and vehicle coverage
+        self.calculate_lower_bounds_and_vehicle_coverage()
 
         # Transform items and demands to DataFrames for easier manipulation
         self.items = pd.DataFrame([item.to_dict() for item in self.items])
         self.demands = pd.DataFrame([demand.to_dict() for demand in self.demands])
         self.aggregated_demands = pd.DataFrame(self.aggregated_demands)
 
+        #Possible option but unnecessary! 
         if standardize:
             self.standardize_data()
 
@@ -206,26 +214,42 @@ class Instance:
                                       "Agg Mass Ratio": mass_aggregate / self.vehicle_capacity}
                         self.aggregated_demands.append(agg_demand)
 
+    def define_Divider(self):
+        ''' Define divider for unifying units in different instances
+            Instances of '"Ceschia_et_al_2013","Moura_Oliveira_2009" 
+            have different units for geometry of items and vehicle'
+        '''
+        # Divider for unifiying units 
+        if self.folder_name in ["Ceschia_et_al_2013","Moura_Oliveira_2009"]:
+            self.divider = 10
+        else: 
+            self.divider = 1 # Default value is 1, no need to change for most instances
 
-    def calculate_complete_volume(self):
 
+    def calculate_lower_bounds_and_vehicle_coverage(self):
+        ''' Calculate lower bounds for vehicles and vehicle coverage
+        '''
+
+        #Initialize
         self.vehicle_lower_bound_volume = 0
         self.vehicle_lower_bound_mass = 0
 
+        #iterate through all demands and items
         for demand in self.demands:
             for item in self.items:
                 if item.type == demand.type:
                     self.vehicle_lower_bound_volume  += item.volume * demand.quantity
                     self.vehicle_lower_bound_mass += item.mass * demand.quantity
 
-
+        #Calculate the exact lower bounds and coverages
         self.vehicle_lower_bound_volume = self.vehicle_lower_bound_volume / self.cargo_volume
         self.vehicle_lower_bound_mass = self.vehicle_lower_bound_mass / self.vehicle_capacity
         self.vehicle_coverage_mass = self.vehicle_lower_bound_volume / self.num_vehicles
         self.vehicle_coverage_volume = self.vehicle_lower_bound_volume / self.num_vehicles
 
     def standardize_data(self):
-
+        ''' Standardize data for easier comparison, but NO EFFECT!
+        '''
         for column in ['Length', 'Width', 'Height', 'Mass', 'Volume']:
             column_name = f"{column}_standardized"
             self.items[column_name] = (self.items[column] - self.items[column].mean()) / self.items[column].std()
@@ -249,6 +273,4 @@ class Instance:
             "Vehicle LB Mass": round(self.vehicle_lower_bound_mass,2),
             "Vehicle Coverage Mass": round(self.vehicle_coverage_mass,2),
             "Vehicle Coverage Volume": round(self.vehicle_coverage_volume,2)
-            #"Relative Volume": round(self.relative_volume, 2),s
-            #"Packed Vehicle Volume": self.packed_volume
         }
