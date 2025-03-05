@@ -33,7 +33,7 @@ i		x		y		Demand		ReadyTime	DueDate		ServiceTime	DemandedMass	DemandedVolume
 ITEMS
 Type		Length		Width		Height		Mass		Fragility	LoadBearingStrength
 Bt1		5		25		15		1		0		0.0800000
-Bt2		5		660		5		101		0		0.2773600
+Bt2		660		5		5		101		0		0.2773600
 Bt3		15		15		15		1		0		0.0577800
 Bt4		18		30		12		4		0		0.0557400
 Bt5		20		30		10		1		1		0.0000000
