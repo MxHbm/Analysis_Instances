@@ -10,7 +10,7 @@ __pychache__
 *.so
 
 # All train_data files
-#Train_data/
+Train_data/
 
 .DS_Store
 *.DS_Store
