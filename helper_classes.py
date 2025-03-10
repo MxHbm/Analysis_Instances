@@ -96,7 +96,7 @@ class Demand:
         }
 
 class Instance:
-    def __init__(self, file_path: str,  standardize: bool):
+    def __init__(self, file_path: str,  standardize: bool, analyze_one_source: bool):
         """ Initialize instance by reading the file and extracting data """
         self.file_path = file_path
         self.folder_name = os.path.basename(os.path.dirname(file_path))
@@ -132,6 +132,15 @@ class Instance:
         #Possible option but unnecessary! 
         if standardize:
             self.standardize_data()
+
+        #Add additional parameters when only one instance is analyzed
+        if analyze_one_source: 
+            
+            for df in [self.items, self.demands, self.aggregated_demands]:
+                df["Instance Combination"] = str(self.num_customers) + " - " + str(self.num_item_types) + " - " + str(self.num_items)
+                df["Number of Customers"] = self.num_customers
+                df["Number of Items"] = self.num_items
+                df["Number of Item Types"] = self.num_item_types
 
     def parse_file(self):
         """ Parses the instance file to extract relevant details """
