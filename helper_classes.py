@@ -66,6 +66,50 @@ class Item:
             "Relative Mass": self.relative_mass,
             "Relative Volume": self.relative_volume
         }
+    
+class Customer: 
+
+    def __init__(self, folder_name:str, instance_name:str, customer_id:int, x:int, y:int, Demand:int, ReadyTime: int, DueDate:int, ServiceTime:int, DemandedMass:int, DemandedVolume:int):
+        self.folder_name = folder_name
+        self.instance_name = instance_name
+        self.customer_id = customer_id
+        self.x = x
+        self.y = y
+        self.demand = Demand,
+        self.readyTime = ReadyTime
+        self.dueDate = DueDate
+        self.serviceTime = ServiceTime
+        self.demandedMass = DemandedMass
+        self.demandedVolume = DemandedVolume
+
+    def __print__(self): 
+        ''' Prints all necessaey information about item'''
+
+        print("Instance Name: ", self.instance_name)
+        print("Customer ID: ", self.customer_id)
+        print("x: ", self.x)
+        print("y: ", self.y)
+        print("Ready Time: ", self.readyTime)
+        print("Due Date: ", self.dueDate)
+        print("Service Time: ", self.serviceTime)
+        print("Demanded Mass: ", self.demandedMass)
+        print("Demanded Volume: ", self.demandedVolume) 
+    
+    def to_dict(self):
+        """ Convert instance data to a dictionary for DataFrame storage """
+        return {
+            "Folder Name": self.folder_name,
+            "Instance Name": self.instance_name,
+            "Customer ID": self.customer_id,
+            "x": self.x, 
+            "y" : self.y,
+            "Ready Time": self.readyTime,
+            "Due Date": self.dueDate,
+            "Service Time": self.serviceTime,
+            "Demanded Mass": self.demandedMass,
+            "Demanded Volume": self.demandedVolume
+        }
+    
 
 
 class Demand: 
@@ -114,6 +158,7 @@ class Instance:
         self.items = []  
         self.demands = []  
         self.aggregated_demands = []
+        self.customers = []
 
         # Define divider for unifying units in different instances
         self.define_Divider()
@@ -128,6 +173,7 @@ class Instance:
         self.items = pd.DataFrame([item.to_dict() for item in self.items])
         self.demands = pd.DataFrame([demand.to_dict() for demand in self.demands])
         self.aggregated_demands = pd.DataFrame(self.aggregated_demands)
+        self.customers = pd.DataFrame([customer.to_dict() for customer in self.customers])
 
         #Possible option but unnecessary! 
         if standardize:
@@ -169,6 +215,9 @@ class Instance:
             elif "VEHICLE" in line:
                 section = "VEHICLE"
                 flag = False
+            elif "CUSTOMERS" in line:
+                section = "CUSTOMERS"
+                flag = True
             elif "ITEMS" in line:
                 section = "ITEMS"
                 flag = True
@@ -189,6 +238,11 @@ class Instance:
                             self.cargoSpace_Width = int(parts[1])/self.divider
                         elif "CargoSpace_Height" in line:
                             self.cargoSpace_Height = int(parts[1])/self.divider
+
+                    elif section == "CUSTOMERS":
+                        # Extract customer details
+                        customer = Customer(self.folder_name, self.name, int(parts[0]), int(parts[1]), int(parts[2]), int(parts[3]), int(parts[4]), int(parts[5]), int(parts[6]), float(parts[7]), int(parts[8]))
+                        self.customers.append(customer)
 
                     elif section == "ITEMS":
                         # Extract item details

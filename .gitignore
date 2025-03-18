@@ -12,6 +12,9 @@ __pychache__
 # All train_data files
 Train_data/
 
+# All train_data files
+Train_data_json/
+
 .DS_Store
 *.DS_Store
 
