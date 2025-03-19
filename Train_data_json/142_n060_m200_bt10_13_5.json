@@ -5,67 +5,67 @@
             "Capacity": 12595,
             "Length": 60,
             "Width": 25,
-            "Height": 45000
+            "Height": 30
         },
         {
             "Capacity": 12595,
             "Length": 60,
             "Width": 25,
-            "Height": 45000
+            "Height": 30
         },
         {
             "Capacity": 12595,
             "Length": 60,
             "Width": 25,
-            "Height": 45000
+            "Height": 30
         },
         {
             "Capacity": 12595,
             "Length": 60,
             "Width": 25,
-            "Height": 45000
+            "Height": 30
         },
         {
             "Capacity": 12595,
             "Length": 60,
             "Width": 25,
-            "Height": 45000
+            "Height": 30
         },
         {
             "Capacity": 12595,
             "Length": 60,
             "Width": 25,
-            "Height": 45000
+            "Height": 30
         },
         {
             "Capacity": 12595,
             "Length": 60,
             "Width": 25,
-            "Height": 45000
+            "Height": 30
         },
         {
             "Capacity": 12595,
             "Length": 60,
             "Width": 25,
-            "Height": 45000
+            "Height": 30
         },
         {
             "Capacity": 12595,
             "Length": 60,
             "Width": 25,
-            "Height": 45000
+            "Height": 30
         },
         {
             "Capacity": 12595,
             "Length": 60,
             "Width": 25,
-            "Height": 45000
+            "Height": 30
         },
         {
             "Capacity": 12595,
             "Length": 60,
             "Width": 25,
-            "Height": 45000
+            "Height": 30
         }
     ],
     "Nodes": [
@@ -97,7 +97,7 @@
                     "Width": 5,
                     "Height": 3,
                     "Volume": 180,
-                    "Fragility": 0,
+                    "Fragility": "None",
                     "EnableHorizontalRotation": 1,
                     "Rotated": "None"
                 },
@@ -108,7 +108,7 @@
                     "Width": 6,
                     "Height": 3,
                     "Volume": 108,
-                    "Fragility": 0,
+                    "Fragility": "None",
                     "EnableHorizontalRotation": 1,
                     "Rotated": "None"
                 },
@@ -119,7 +119,7 @@
                     "Width": 5,
                     "Height": 6,
                     "Volume": 330,
-                    "Fragility": 0,
+                    "Fragility": "None",
                     "EnableHorizontalRotation": 1,
                     "Rotated": "None"
                 }
@@ -142,7 +142,7 @@
                     "Width": 5,
                     "Height": 3,
                     "Volume": 180,
-                    "Fragility": 0,
+                    "Fragility": "None",
                     "EnableHorizontalRotation": 1,
                     "Rotated": "None"
                 },
@@ -153,7 +153,7 @@
                     "Width": 2,
                     "Height": 8,
                     "Volume": 112,
-                    "Fragility": 0,
+                    "Fragility": "None",
                     "EnableHorizontalRotation": 1,
                     "Rotated": "None"
                 },
@@ -164,7 +164,7 @@
                     "Width": 5,
                     "Height": 6,
                     "Volume": 330,
-                    "Fragility": 0,
+                    "Fragility": "None",
                     "EnableHorizontalRotation": 1,
                     "Rotated": "None"
                 }
@@ -187,7 +187,7 @@
                     "Width": 5,
                     "Height": 3,
                     "Volume": 180,
-                    "Fragility": 0,
+                    "Fragility": "None",
                     "EnableHorizontalRotation": 1,
                     "Rotated": "None"
                 },
@@ -198,7 +198,7 @@
                     "Width": 7,
                     "Height": 3,
                     "Volume": 210,
-                    "Fragility": 0,
+                    "Fragility": "None",
                     "EnableHorizontalRotation": 1,
                     "Rotated": "None"
                 },
@@ -209,7 +209,7 @@
                     "Width": 5,
                     "Height": 6,
                     "Volume": 330,
-                    "Fragility": 0,
+                    "Fragility": "None",
                     "EnableHorizontalRotation": 1,
                     "Rotated": "None"
                 }
@@ -232,7 +232,7 @@
                     "Width": 6,
                     "Height": 4,
                     "Volume": 264,
-                    "Fragility": 1,
+                    "Fragility": "Fragile",
                     "EnableHorizontalRotation": 1,
                     "Rotated": "None"
                 },
@@ -243,7 +243,7 @@
                     "Width": 7,
                     "Height": 3,
                     "Volume": 210,
-                    "Fragility": 0,
+                    "Fragility": "None",
                     "EnableHorizontalRotation": 1,
                     "Rotated": "None"
                 },
@@ -254,7 +254,7 @@
                     "Width": 5,
                     "Height": 6,
                     "Volume": 330,
-                    "Fragility": 0,
+                    "Fragility": "None",
                     "EnableHorizontalRotation": 1,
                     "Rotated": "None"
                 },
@@ -265,7 +265,7 @@
                     "Width": 3,
                     "Height": 5,
                     "Volume": 180,
-                    "Fragility": 0,
+                    "Fragility": "None",
                     "EnableHorizontalRotation": 1,
                     "Rotated": "None"
                 }
@@ -288,7 +288,7 @@
                     "Width": 6,
                     "Height": 4,
                     "Volume": 264,
-                    "Fragility": 1,
+                    "Fragility": "Fragile",
                     "EnableHorizontalRotation": 1,
                     "Rotated": "None"
                 },
@@ -299,7 +299,7 @@
                     "Width": 7,
                     "Height": 3,
                     "Volume": 210,
-                    "Fragility": 0,
+                    "Fragility": "None",
                     "EnableHorizontalRotation": 1,
                     "Rotated": "None"
                 }
@@ -322,7 +322,7 @@
                     "Width": 6,
                     "Height": 3,
                     "Volume": 108,
-                    "Fragility": 0,
+                    "Fragility": "None",
                     "EnableHorizontalRotation": 1,
                     "Rotated": "None"
                 },
@@ -333,7 +333,7 @@
                     "Width": 2,
                     "Height": 8,
                     "Volume": 112,
-                    "Fragility": 0,
+                    "Fragility": "None",
                     "EnableHorizontalRotation": 1,
                     "Rotated": "None"
                 },
@@ -344,7 +344,7 @@
                     "Width": 7,
                     "Height": 3,
                     "Volume": 210,
-                    "Fragility": 0,
+                    "Fragility": "None",
                     "EnableHorizontalRotation": 1,
                     "Rotated": "None"
                 }
@@ -367,7 +367,7 @@
                     "Width": 4,
                     "Height": 8,
                     "Volume": 384,
-                    "Fragility": 0,
+                    "Fragility": "None",
                     "EnableHorizontalRotation": 1,
                     "Rotated": "None"
                 }
@@ -390,7 +390,7 @@
                     "Width": 5,
                     "Height": 4,
                     "Volume": 240,
-                    "Fragility": 1,
+                    "Fragility": "Fragile",
                     "EnableHorizontalRotation": 1,
                     "Rotated": "None"
                 },
@@ -401,7 +401,7 @@
                     "Width": 3,
                     "Height": 5,
                     "Volume": 180,
-                    "Fragility": 0,
+                    "Fragility": "None",
                     "EnableHorizontalRotation": 1,
                     "Rotated": "None"
                 }
@@ -424,7 +424,7 @@
                     "Width": 5,
                     "Height": 3,
                     "Volume": 180,
-                    "Fragility": 0,
+                    "Fragility": "None",
                     "EnableHorizontalRotation": 1,
                     "Rotated": "None"
                 },
@@ -435,7 +435,7 @@
                     "Width": 5,
                     "Height": 4,
                     "Volume": 240,
-                    "Fragility": 1,
+                    "Fragility": "Fragile",
                     "EnableHorizontalRotation": 1,
                     "Rotated": "None"
                 },
@@ -446,7 +446,7 @@
                     "Width": 4,
                     "Height": 8,
                     "Volume": 384,
-                    "Fragility": 0,
+                    "Fragility": "None",
                     "EnableHorizontalRotation": 1,
                     "Rotated": "None"
                 },
@@ -457,7 +457,7 @@
                     "Width": 3,
                     "Height": 5,
                     "Volume": 180,
-                    "Fragility": 0,
+                    "Fragility": "None",
                     "EnableHorizontalRotation": 1,
                     "Rotated": "None"
                 }
@@ -480,7 +480,7 @@
                     "Width": 6,
                     "Height": 4,
                     "Volume": 264,
-                    "Fragility": 1,
+                    "Fragility": "Fragile",
                     "EnableHorizontalRotation": 1,
                     "Rotated": "None"
                 },
@@ -491,7 +491,7 @@
                     "Width": 7,
                     "Height": 3,
                     "Volume": 210,
-                    "Fragility": 0,
+                    "Fragility": "None",
                     "EnableHorizontalRotation": 1,
                     "Rotated": "None"
                 },
@@ -502,7 +502,7 @@
                     "Width": 7,
                     "Height": 7,
                     "Volume": 539,
-                    "Fragility": 0,
+                    "Fragility": "None",
                     "EnableHorizontalRotation": 1,
                     "Rotated": "None"
                 },
@@ -513,7 +513,7 @@
                     "Width": 3,
                     "Height": 5,
                     "Volume": 180,
-                    "Fragility": 0,
+                    "Fragility": "None",
                     "EnableHorizontalRotation": 1,
                     "Rotated": "None"
                 }
@@ -536,7 +536,7 @@
                     "Width": 7,
                     "Height": 7,
                     "Volume": 539,
-                    "Fragility": 0,
+                    "Fragility": "None",
                     "EnableHorizontalRotation": 1,
                     "Rotated": "None"
                 },
@@ -547,7 +547,7 @@
                     "Width": 4,
                     "Height": 8,
                     "Volume": 384,
-                    "Fragility": 0,
+                    "Fragility": "None",
                     "EnableHorizontalRotation": 1,
                     "Rotated": "None"
                 }
@@ -570,7 +570,7 @@
                     "Width": 6,
                     "Height": 3,
                     "Volume": 108,
-                    "Fragility": 0,
+                    "Fragility": "None",
                     "EnableHorizontalRotation": 1,
                     "Rotated": "None"
                 },
@@ -581,7 +581,7 @@
                     "Width": 5,
                     "Height": 4,
                     "Volume": 240,
-                    "Fragility": 1,
+                    "Fragility": "Fragile",
                     "EnableHorizontalRotation": 1,
                     "Rotated": "None"
                 },
@@ -592,7 +592,7 @@
                     "Width": 4,
                     "Height": 8,
                     "Volume": 384,
-                    "Fragility": 0,
+                    "Fragility": "None",
                     "EnableHorizontalRotation": 1,
                     "Rotated": "None"
                 }
@@ -615,7 +615,7 @@
                     "Width": 5,
                     "Height": 4,
                     "Volume": 240,
-                    "Fragility": 1,
+                    "Fragility": "Fragile",
                     "EnableHorizontalRotation": 1,
                     "Rotated": "None"
                 },
@@ -626,7 +626,7 @@
                     "Width": 7,
                     "Height": 7,
                     "Volume": 539,
-                    "Fragility": 0,
+                    "Fragility": "None",
                     "EnableHorizontalRotation": 1,
                     "Rotated": "None"
                 },
@@ -637,7 +637,7 @@
                     "Width": 3,
                     "Height": 5,
                     "Volume": 180,
-                    "Fragility": 0,
+                    "Fragility": "None",
                     "EnableHorizontalRotation": 1,
                     "Rotated": "None"
                 }

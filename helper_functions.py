@@ -126,7 +126,7 @@ def get_vehicle_dataframe(filtered_instance:pd.DataFrame) -> dict:
                 "Capacity": int(filtered_instance["Vehicle Capacity"].values[0]),
                 "Length": int(filtered_instance["Cargo Length"].values[0]),
                 "Width": int(filtered_instance["Cargo Width"].values[0]),
-                "Height": int(filtered_instance["Cargo Volume"].values[0])
+                "Height": int(filtered_instance["Cargo Height"].values[0])
             } for _ in range(filtered_instance["Number of Vehicles"].values[0])
         ]).to_dict(orient="records")
 
@@ -167,6 +167,8 @@ def write_json_file(instance:str,
             if not refiltered_items.empty:
                 first_item = refiltered_items.iloc[0]  # Safe indexing
 
+                fragile_output = "Fragile" if first_item["Fragility"] == 1 else "None"
+
                 node_items.append({
                     "Quantity": int(single_demand["Quantity"]),
                     "Weight": float(first_item["Mass"]),
@@ -174,7 +176,7 @@ def write_json_file(instance:str,
                     "Width": int(first_item["Width"]),
                     "Height": int(first_item["Height"]),
                     "Volume": int(first_item["Volume"]),
-                    "Fragility": int(first_item["Fragility"]),
+                    "Fragility": fragile_output,
                     "EnableHorizontalRotation": int(True),
                     "Rotated": "None"
                 })
