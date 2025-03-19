@@ -5,8 +5,9 @@ import os
 import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
+import json
 
-def get_filtered_data(instance:str, df:pd.DataFrame, aggregate_demands:pd.DataFrame, single_demands:pd.DataFrame, items:pd.DataFrame):
+def get_filtered_data(instance:str, df:pd.DataFrame, aggregate_demands:pd.DataFrame, single_demands:pd.DataFrame, items:pd.DataFrame, customers:pd.DataFrame) -> dict:
     ''' Filter given datasets for particular instance
     Args:
         instance (str): Name of the instance
@@ -17,11 +18,16 @@ def get_filtered_data(instance:str, df:pd.DataFrame, aggregate_demands:pd.DataFr
     Returns:
         dict: Dictionary containing filtered datasets
     '''
+
+    filtered_customers =  customers[customers["Instance Name"] == instance]
+    filtered_customers.drop(columns=["Instance Name", "Folder Name"], inplace=True)
+
     return {
         "instance": df[df["Instance Name"] == instance],
         "agg_demands": aggregate_demands[aggregate_demands["Instance Name"] == instance],
         "single_demands": single_demands[single_demands["Instance Name"] == instance],
-        "items": items[items["Instance Name"] == instance]
+        "items": items[items["Instance Name"] == instance],
+        "customers": filtered_customers
     }
 
 def calculate_bounds(filtered_instance: pd.DataFrame, lb_barrier = 0.25):
@@ -92,7 +98,107 @@ def write_route_and_demand(file:any, perm:list[int], single_demands: pd.DataFram
             file.write(f"{demand['Type']}\t{demand['Quantity']}\t")
         file.write("\n")
 
-def generate_instances(instance:str, df:pd.DataFrame, aggregate_demands:pd.DataFrame, single_demands:pd.DataFrame, items:pd.DataFrame) -> int:
+
+def write_txt_file(instance:str,
+                   num_customers:int,
+                   j:int,
+                   perm:list[int],
+                   filtered_data) -> None:
+     
+    filename = f"Train_data/{instance}_{num_customers}_{j}.txt"
+
+    #Write instance file
+    with open(filename, "w") as file:
+        write_header(file, filtered_data["instance"])
+        write_items(file, filtered_data["items"])
+        write_route_and_demand(file, perm, filtered_data["single_demands"])
+
+def get_vehicle_dataframe(filtered_instance:pd.DataFrame) -> dict:
+    '''
+    Create a dataframe with vehicle information
+    Args:
+        filtered_instance (pd.DataFrame): Filtered instance dataset
+    Returns:
+        pd.DataFrame: Dataframe with vehicle information
+    '''
+    return pd.DataFrame([
+            {
+                "Capacity": int(filtered_instance["Vehicle Capacity"].values[0]),
+                "Length": int(filtered_instance["Cargo Length"].values[0]),
+                "Width": int(filtered_instance["Cargo Width"].values[0]),
+                "Height": int(filtered_instance["Cargo Volume"].values[0])
+            } for _ in range(filtered_instance["Number of Vehicles"].values[0])
+        ]).to_dict(orient="records")
+
+def extract_customer_information(filtered_customers:pd.DataFrame, customer:int) -> dict:
+
+    if "Customer ID" not in filtered_customers.columns:
+        raise KeyError("Column 'Customer ID' is missing from the DataFrame")
+
+    refiltered_customers = filtered_customers[filtered_customers["Customer ID"] == customer]
+
+    nodes_list = refiltered_customers.to_dict(orient="records")
+    
+    if not nodes_list:
+        raise ValueError("No customers found")
+    nodes = nodes_list[0] 
+
+    return nodes
+
+def write_json_file(instance:str,
+                   num_customers:int,
+                   j:int,
+                   perm:list[int],
+                   filtered_data) -> None:
+    
+    filename = f"Train_data_json/{instance}_{num_customers}_{j}.json"
+
+    vehicles_json = get_vehicle_dataframe(filtered_data["instance"])
+
+    nodes_json = []
+    for customer in perm:
+        
+        nodes = extract_customer_information(filtered_data["customers"], customer)
+
+        node_items = []
+        for _, single_demand in filtered_data["single_demands"][filtered_data["single_demands"]["Customer ID"] == str(customer)].iterrows():
+            refiltered_items = filtered_data["items"][filtered_data["items"]["Type"] == single_demand["Type"]]
+
+            if not refiltered_items.empty:
+                first_item = refiltered_items.iloc[0]  # Safe indexing
+
+                node_items.append({
+                    "Quantity": int(single_demand["Quantity"]),
+                    "Weight": float(first_item["Mass"]),
+                    "Length": int(first_item["Length"]),
+                    "Width": int(first_item["Width"]),
+                    "Height": int(first_item["Height"]),
+                    "Volume": int(first_item["Volume"]),
+                    "Fragility": int(first_item["Fragility"]),
+                    "EnableHorizontalRotation": int(True),
+                    "Rotated": "None"
+                })
+
+        nodes.update({"Items": node_items})
+        nodes_json.append(nodes)
+
+    data = {
+        "Name": filtered_data["instance"]["Instance Name"].values[0],
+        "Vehicles": vehicles_json,
+        "Nodes": nodes_json
+    }
+
+    with open(filename, "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=4)
+
+
+
+def generate_instances(instance:str, df:pd.DataFrame,
+                       aggregate_demands:pd.DataFrame,
+                       single_demands:pd.DataFrame,
+                       items:pd.DataFrame,
+                       customers:pd.DataFrame,
+                       write_txt_file_bool:bool) -> int:
     '''
         Generate train instances with specific customer routes and demands
     Args:       
@@ -106,7 +212,7 @@ def generate_instances(instance:str, df:pd.DataFrame, aggregate_demands:pd.DataF
     '''
 
     # Create dict with filtered dataframes
-    filtered_data = get_filtered_data(instance, df, aggregate_demands, single_demands, items)
+    filtered_data = get_filtered_data(instance, df, aggregate_demands, single_demands, items, customers)
 
     # Calculate bounds for number of customers
     lower_bound, upper_bound, max_customers = calculate_bounds(filtered_data["instance"])
@@ -129,14 +235,14 @@ def generate_instances(instance:str, df:pd.DataFrame, aggregate_demands:pd.DataF
             
             #Create random permutation of customers
             perm = random.sample(numbers, num_customers)
-            #Define filename
-            filename = f"Train_data/{instance}_{num_customers}_{j}.txt"
+            perm.insert(0, 0) #Add depot at the beginning
 
-            #Write instance file
-            with open(filename, "w") as file:
-                write_header(file, filtered_data["instance"])
-                write_items(file, filtered_data["items"])
-                write_route_and_demand(file, perm, filtered_data["single_demands"])
+            if(write_txt_file_bool == True):
+            #Define filename
+                write_txt_file(instance, num_customers, j, perm, filtered_data)
+            else: 
+                write_json_file(instance, num_customers, j, perm, filtered_data)
+
 
             total_created += 1
 
