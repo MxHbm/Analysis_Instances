@@ -19,8 +19,7 @@ def get_filtered_data(instance:str, df:pd.DataFrame, aggregate_demands:pd.DataFr
         dict: Dictionary containing filtered datasets
     '''
 
-    filtered_customers =  customers[customers["Instance Name"] == instance]
-    filtered_customers.drop(columns=["Instance Name", "Folder Name"], inplace=True)
+    filtered_customers =  customers[customers["Instance Name"] == instance].drop(columns=["Instance Name", "Folder Name"])
 
     return {
         "instance": df[df["Instance Name"] == instance],
@@ -42,8 +41,8 @@ def calculate_bounds(filtered_instance: pd.DataFrame, lb_barrier = 0.25):
     '''
 
     max_customers = filtered_instance["Number of Customers"].values[0]
-    volume_lb = filtered_instance["Vehicle LB Volume"].values[0]
-    mass_lb = filtered_instance["Vehicle LB Mass"].values[0]
+    volume_lb = max(filtered_instance["Vehicle LB Volume"].values[0],1)
+    mass_lb = max(filtered_instance["Vehicle LB Mass"].values[0],1)
 
     #Calculate lb and ub
     upper_bound = max(np.ceil(max_customers / volume_lb), np.ceil(max_customers / mass_lb))
@@ -184,11 +183,14 @@ def write_json_file(instance:str,
         nodes.update({"Items": node_items})
         nodes_json.append(nodes)
 
+    name_in_file = filename.split("/")[1].split(".")[0]
     data = {
-        "Name": filtered_data["instance"]["Instance Name"].values[0],
+        "Name": name_in_file,
         "Vehicles": vehicles_json,
         "Nodes": nodes_json
     }
+
+    print(filename)
 
     with open(filename, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=4)
@@ -226,14 +228,14 @@ def generate_instances(instance:str, df:pd.DataFrame,
     total_created = 0
 
     #Define range of possible number of customers
-    range_num = int(np.floor(upper_bound - lower_bound))
+    range_num = int(np.floor(upper_bound - lower_bound)**0.5)
 
     #Create instances with random number of customers
     for i in range(range_num):
         random.seed(i)
         num_customers = int(random.uniform(lower_bound, upper_bound)) #Alternative consider all
 
-        for j in range(num_customers):
+        for j in range(int(num_customers**0.5)):
             
             #Create random permutation of customers
             perm = random.sample(numbers, num_customers)
@@ -241,9 +243,9 @@ def generate_instances(instance:str, df:pd.DataFrame,
 
             if(write_txt_file_bool == True):
             #Define filename
-                write_txt_file(instance, num_customers, j, perm, filtered_data)
+                write_txt_file(instance, i, j, perm, filtered_data)
             else: 
-                write_json_file(instance, num_customers, j, perm, filtered_data)
+                write_json_file(instance, i, j, perm, filtered_data)
 
 
             total_created += 1
