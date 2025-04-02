@@ -241,7 +241,7 @@ class Instance:
 
                     elif section == "CUSTOMERS":
                         # Extract customer details
-                        customer = Customer(self.folder_name, self.name, int(parts[0]), int(parts[1]), int(parts[2]), int(parts[3]), int(parts[4]), int(parts[5]), int(parts[6]), float(parts[7]), int(parts[8]))
+                        customer = Customer(self.folder_name, self.name, int(parts[0]), float(parts[1]), float(parts[2]), int(parts[3]), int(parts[4]), int(parts[5]), int(parts[6]), float(parts[7]), int(parts[8]))
                         self.customers.append(customer)
 
                     elif section == "ITEMS":
