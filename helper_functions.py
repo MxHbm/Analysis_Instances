@@ -46,7 +46,7 @@ def calculate_bounds(filtered_instance: pd.DataFrame, lb_barrier = 0.25):
 
     #Calculate lb and ub
     upper_bound = max(np.ceil(max_customers / volume_lb), np.ceil(max_customers / mass_lb))
-    lower_bound = int(lb_barrier * upper_bound)
+    lower_bound = 1
 
     return lower_bound, upper_bound, max_customers
 
@@ -102,9 +102,10 @@ def write_txt_file(instance:str,
                    num_customers:int,
                    j:int,
                    perm:list[int],
-                   filtered_data) -> None:
+                   filtered_data,
+                   file_path) -> None:
      
-    filename = f"Train_data/{instance}_{num_customers}_{j}.txt"
+    filename = f"{file_path}/{instance}_{num_customers}_{j}.txt"
 
     #Write instance file
     with open(filename, "w") as file:
@@ -145,12 +146,13 @@ def extract_customer_information(filtered_customers:pd.DataFrame, customer:int) 
     return nodes
 
 def write_json_file(instance:str,
-                   num_customers:int,
-                   j:int,
-                   perm:list[int],
-                   filtered_data) -> None:
-    
-    filename = f"Train_data_json/{instance}_{num_customers}_{j}.json"
+                    num_customers:int,
+                    j:int,
+                    perm:list[int],
+                    filtered_data,
+                    file_path) -> None:
+     
+    filename = f"{file_path}/{instance}_{num_customers}_{j}.json"
 
     vehicles_json = get_vehicle_dataframe(filtered_data["instance"])
 
@@ -183,14 +185,12 @@ def write_json_file(instance:str,
         nodes.update({"Items": node_items})
         nodes_json.append(nodes)
 
-    name_in_file = filename.split("/")[1].split(".")[0]
+    name_in_file = filename.split("/")[-1].split(".")[0]
     data = {
         "Name": name_in_file,
         "Vehicles": vehicles_json,
         "Nodes": nodes_json
     }
-
-    print(filename)
 
     with open(filename, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=4)
@@ -202,7 +202,8 @@ def generate_instances(instance:str, df:pd.DataFrame,
                        single_demands:pd.DataFrame,
                        items:pd.DataFrame,
                        customers:pd.DataFrame,
-                       write_txt_file_bool:bool) -> int:
+                       write_txt_file_bool:bool,
+                       file_path) -> int:
     '''
         Generate train instances with specific customer routes and demands
     Args:       
@@ -224,6 +225,10 @@ def generate_instances(instance:str, df:pd.DataFrame,
     #Create list with dummy values for customers
     numbers = list(range(1, max_customers + 1))
 
+    #Upper Bounds limit for number of customers 
+    max_weight = filtered_data["instance"]["Vehicle Capacity"].values[0]
+    max_volume = filtered_data["instance"]["Cargo Length"].values[0] * filtered_data["instance"]["Cargo Width"].values[0] * filtered_data["instance"]["Cargo Height"].values[0] 
+
     #Counter for created instances
     total_created = 0
 
@@ -235,20 +240,35 @@ def generate_instances(instance:str, df:pd.DataFrame,
         random.seed(i)
         num_customers = int(random.uniform(lower_bound, upper_bound)) #Alternative consider all
 
-        for j in range(int(num_customers**0.5)):
+        for j in range(int(num_customers)):
             
-            #Create random permutation of customers
-            perm = random.sample(numbers, num_customers)
-            perm.insert(0, 0) #Add depot at the beginning
+            infeasible = True
+            attempts = 0
 
-            if(write_txt_file_bool == True):
-            #Define filename
-                write_txt_file(instance, i, j, perm, filtered_data)
-            else: 
-                write_json_file(instance, i, j, perm, filtered_data)
+            while(infeasible and attempts < 10):
+                #Create random permutation of customers
+                perm = random.sample(numbers, num_customers)
+                perm.insert(0, 0) #Add depot at the beginning
 
+                total_volume = 0
+                total_weight = 0
+                for customer in perm[1:]:
+                    total_volume += filtered_data["agg_demands"][filtered_data["agg_demands"]["Customer ID"] == str(customer)]["Agg Volume"].values[0]
+                    total_weight += filtered_data["agg_demands"][filtered_data["agg_demands"]["Customer ID"] == str(customer)]["Agg Mass"].values[0]
 
-            total_created += 1
+                if total_volume > max_volume or total_weight > max_weight:
+                    attempts += 1
+                    continue
+                else:
+                    infeasible = False
+                    print(num_customers)
+                    if(write_txt_file_bool == True):
+                    #Define filename
+                        write_txt_file(instance, i, j, perm, filtered_data, file_path)
+                    else: 
+                        write_json_file(instance, i, j, perm, filtered_data, file_path)
+
+                    total_created += 1
 
     return total_created
 
