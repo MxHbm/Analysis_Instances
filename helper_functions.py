@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
 import json
+from datetime import datetime
 
 def get_filtered_data(instance:str, df:pd.DataFrame, aggregate_demands:pd.DataFrame, single_demands:pd.DataFrame, items:pd.DataFrame, customers:pd.DataFrame) -> dict:
     ''' Filter given datasets for particular instance
@@ -46,9 +47,8 @@ def calculate_bounds(filtered_instance: pd.DataFrame, lb_barrier = 0.25):
 
     #Calculate lb and ub
     upper_bound = max(np.ceil(max_customers / volume_lb), np.ceil(max_customers / mass_lb))
-    lower_bound = 1
 
-    return lower_bound, upper_bound, max_customers
+    return upper_bound, max_customers
 
 def write_header(file:any, filtered_instance:dict) -> None:
     '''
@@ -103,9 +103,10 @@ def write_txt_file(instance:str,
                    j:int,
                    perm:list[int],
                    filtered_data,
-                   file_path) -> None:
+                   file_path,
+                   date) -> None:
      
-    filename = f"{file_path}/{instance}_{num_customers}_{j}.txt"
+    filename = f"{file_path}/{instance}_{num_customers}_{j}_{date}.txt"
 
     #Write instance file
     with open(filename, "w") as file:
@@ -150,9 +151,10 @@ def write_json_file(instance:str,
                     j:int,
                     perm:list[int],
                     filtered_data,
-                    file_path) -> None:
+                    file_path,
+                    date) -> None:
      
-    filename = f"{file_path}/{instance}_{num_customers}_{j}.json"
+    filename = f"{file_path}/{instance}_{num_customers}_{j}_{date}.json"
 
     vehicles_json = get_vehicle_dataframe(filtered_data["instance"])
 
@@ -216,11 +218,16 @@ def generate_instances(instance:str, df:pd.DataFrame,
         int: Number of instances created
     '''
 
+    # Generate today string
+    today = datetime.today()
+    formatted_date = today.strftime('%d%m%y')
+
     # Create dict with filtered dataframes
     filtered_data = get_filtered_data(instance, df, aggregate_demands, single_demands, items, customers)
 
     # Calculate bounds for number of customers
-    lower_bound, upper_bound, max_customers = calculate_bounds(filtered_data["instance"])
+    upper_bound, max_customers = calculate_bounds(filtered_data["instance"])
+    max_customers = filtered_data["instance"]["Number of Customers"].values[0]
 
     #Create list with dummy values for customers
     numbers = list(range(1, max_customers + 1))
@@ -232,43 +239,44 @@ def generate_instances(instance:str, df:pd.DataFrame,
     #Counter for created instances
     total_created = 0
 
+    random.seed(42)
+
+    # Cache dicts for aggregated demand to avoid repeated lookups
+    agg_volume_dict = dict(zip(filtered_data["agg_demands"]["Customer ID"].astype(int),
+                           filtered_data["agg_demands"]["Agg Volume"]))
+    agg_mass_dict = dict(zip(filtered_data["agg_demands"]["Customer ID"].astype(int),
+                         filtered_data["agg_demands"]["Agg Mass"]))
+
     #Define range of possible number of customers
-    range_num = int(np.floor(upper_bound - lower_bound)**0.5)
-
+    num_customers_list = random.sample(numbers, np.floor(upper_bound))
     #Create instances with random number of customers
-    for i in range(range_num):
-        random.seed(i)
-        num_customers = int(random.uniform(lower_bound, upper_bound)) #Alternative consider all
+    for num_customers in num_customers_list:
 
-        for j in range(int(num_customers)):
-            
-            infeasible = True
+        for j in range(num_customers):
+            feasible = True
             attempts = 0
 
-            while(infeasible and attempts < 10):
+            while(feasible and attempts < 10):
                 #Create random permutation of customers
                 perm = random.sample(numbers, num_customers)
-                perm.insert(0, 0) #Add depot at the beginning
 
-                total_volume = 0
-                total_weight = 0
-                for customer in perm[1:]:
-                    total_volume += filtered_data["agg_demands"][filtered_data["agg_demands"]["Customer ID"] == str(customer)]["Agg Volume"].values[0]
-                    total_weight += filtered_data["agg_demands"][filtered_data["agg_demands"]["Customer ID"] == str(customer)]["Agg Mass"].values[0]
+                total_volume = sum(agg_volume_dict.get(c, 0) for c in perm)
+                total_weight = sum(agg_mass_dict.get(c, 0) for c in perm)
+
 
                 if total_volume > max_volume or total_weight > max_weight:
                     attempts += 1
                     continue
-                else:
-                    infeasible = False
-                    print(num_customers)
-                    if(write_txt_file_bool == True):
-                    #Define filename
-                        write_txt_file(instance, i, j, perm, filtered_data, file_path)
-                    else: 
-                        write_json_file(instance, i, j, perm, filtered_data, file_path)
 
-                    total_created += 1
+                perm.insert(0, 0) #Add depot at the beginning, if feasible
+                feasible = False
+                
+                if write_txt_file_bool:
+                    write_txt_file(instance, num_customers, j, perm, filtered_data, file_path, formatted_date)
+                else: 
+                    write_json_file(instance,num_customers,j, perm, filtered_data, file_path, formatted_date)
+
+                total_created += 1
 
     return total_created
 
