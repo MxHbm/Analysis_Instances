@@ -248,7 +248,7 @@ def generate_instances(instance:str, df:pd.DataFrame,
                          filtered_data["agg_demands"]["Agg Mass"]))
 
     #Define range of possible number of customers
-    num_customers_list = random.sample(numbers, np.floor(upper_bound))
+    num_customers_list = random.sample(numbers, int(np.floor(upper_bound)))
     #Create instances with random number of customers
     for num_customers in num_customers_list:
 
