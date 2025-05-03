@@ -291,12 +291,15 @@ def plot_boxplot(data:pd.DataFrame, column:str, order: list) -> None:
         order (list): List of order of the elements
         title (str): Title of the plot
     '''
-    # Set global style for a scientific look
+    # Set global style for scientific look
     plt.rcParams["font.family"] = "serif"
-    plt.rcParams["axes.labelsize"] = 10
+    plt.rcParams["axes.labelsize"] = 12
     plt.rcParams["axes.titlesize"] = 14
-    plt.rcParams["xtick.labelsize"] = 8
+    plt.rcParams["xtick.labelsize"] = 10
     plt.rcParams["ytick.labelsize"] = 10
+    plt.rcParams["grid.alpha"] = 0.3
+
+    max_volume = 60*25*30
 
     first_unique_list = sorted(list(data[order[0]].unique()))
     second_unique_list = sorted(list(data[order[1]].unique()))
@@ -307,7 +310,7 @@ def plot_boxplot(data:pd.DataFrame, column:str, order: list) -> None:
     colors = blue_palette
 
     # Create figure and subplots (3 rows for different item types)
-    fig, axes = plt.subplots(nrows=3, ncols=1, figsize=(10, 6), sharey=True)
+    fig, axes = plt.subplots(nrows=3, ncols=1, figsize=(12, 7), sharey=True)
     plt.subplots_adjust(hspace=0.4)  # Adjust spacing
 
     # Loop through each item type level (m)
@@ -327,7 +330,10 @@ def plot_boxplot(data:pd.DataFrame, column:str, order: list) -> None:
                 ]
 
                 if not filtered_data.empty:
-                    box_data.append(filtered_data[column].values)
+                    if column == "Volume":
+                        box_data.append(filtered_data[column].values/ max_volume)
+                    else: 
+                        box_data.append(filtered_data[column].values)
                     box_colors.append(colors[n_idx * len(third_unique_list) + k_idx])  # Assign color
                     #box_colors.append(colors[0])  # Assign color
                     box_labels.append(f"$n={n}$\n$k={k}$")  # Newline for better formatting
@@ -345,7 +351,7 @@ def plot_boxplot(data:pd.DataFrame, column:str, order: list) -> None:
             patch.set_edgecolor("black")  # Add black borders
 
         # Grid and aesthetics
-        ax.yaxis.grid(True, linestyle="--", alpha=0.4)
+        ax.yaxis.grid(True, linestyle="--", alpha=0.3)
         ax.set_title(f"{order[0].split(' ')[-1]}: $m={m}$", fontsize=13)
 
         # Remove x labels for the first two rows
@@ -356,8 +362,13 @@ def plot_boxplot(data:pd.DataFrame, column:str, order: list) -> None:
             ax.tick_params(axis="x", rotation=0, labelsize=10)
 
     # Global title and layout
-    plt.suptitle(f"{column} over instance types", fontsize=15)
-    fig.text(0.06, 0.5, f"{column}", va="center", rotation="vertical", fontsize=14)
+    if column == "Volume": 
+    
+        plt.suptitle(f"Rel. {column} over instance types", fontsize=16)
+        fig.text(0.07, 0.5, f"Rel. {column}", va="center", rotation="vertical", fontsize=14)
 
+    else:
+        plt.suptitle(f"{column} over instance types", fontsize=15)
+        fig.text(0.06, 0.5, f"{column}", va="center", rotation="vertical", fontsize=14)
     # Show plot
     plt.show()
