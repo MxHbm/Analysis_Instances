@@ -218,9 +218,14 @@ def generate_instances(instance:str, df:pd.DataFrame,
         int: Number of instances created
     '''
 
-    # Generate today string
-    today = datetime.today()
-    formatted_date = today.strftime('%d%m%y')
+    # Generate current datetime string: DDMMYY_HHMMSS
+    # Get current datetime with microseconds
+    now = datetime.now()
+    formatted_datetime = now.strftime('%d%m%y_%H%M%S')  # Date and time
+    milliseconds = f"{now.microsecond // 1000:03d}"     # Convert microseconds to milliseconds
+
+    # Combine them
+    formatted_date = f"{formatted_datetime}_{milliseconds}"
 
     # Create dict with filtered dataframes
     filtered_data = get_filtered_data(instance, df, aggregate_demands, single_demands, items, customers)
@@ -248,7 +253,7 @@ def generate_instances(instance:str, df:pd.DataFrame,
                          filtered_data["agg_demands"]["Agg Mass"]))
 
     #Define range of possible number of customers
-    num_customers_list = random.sample(numbers, int(np.floor(upper_bound)))
+    num_customers_list = random.sample(numbers[4:], min(len(numbers[4:]), int(np.floor(upper_bound)) + 10))
     #Create instances with random number of customers
     for num_customers in num_customers_list:
 
@@ -268,8 +273,9 @@ def generate_instances(instance:str, df:pd.DataFrame,
                     attempts += 1
                     continue
 
-                perm.insert(0, 0) #Add depot at the beginning, if feasible
                 feasible = False
+
+                perm.insert(0, 0) #Add depot at the beginning, if feasible
                 
                 if write_txt_file_bool:
                     write_txt_file(instance, num_customers, j, perm, filtered_data, file_path, formatted_date)

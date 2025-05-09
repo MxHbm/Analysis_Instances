@@ -11,7 +11,7 @@ def main():
     single_demands = pd.DataFrame()
     aggregate_demands = pd.DataFrame()
     customers = pd.DataFrame()
-    for folder_path in ["Krebs_Ehmke_Koch_2021"]:
+    for folder_path in ["Gendreau_et_al_2006"]:
         for file_name in os.listdir(folder_path):
             if file_name.endswith(".txt"):
                 if file_name != "Overview.txt":
@@ -27,9 +27,9 @@ def main():
     df = pd.DataFrame(instances_data)
 
     random.seed(8)
-    file_path = "C:\\Users\\mahu123a\Documents\\3l-cvrp-classifier-work\\data\\input\\3l-cvrp\\test_input"
+    file_path = r"C:\Users\mahu123a\Documents\Data_Classifier_Old\0_Gendreau_Full_Start\test_input"
     #random.seed(4) old run!
-    instances = random.choices(df["Instance Name"], k=50)
+    instances = random.choices(df["Instance Name"], k=270)
     total_instances = sum(
         generate_instances(instance, df, aggregate_demands, single_demands, items, customers, False, file_path = file_path)
         for instance in instances
