@@ -146,6 +146,32 @@ def extract_customer_information(filtered_customers:pd.DataFrame, customer:int) 
 
     return nodes
 
+def extract_customer_information_new(filtered_customers:pd.DataFrame, customer:int) -> dict:
+
+    if "Customer ID" not in filtered_customers.columns:
+        raise KeyError("Column 'Customer ID' is missing from the DataFrame")
+    
+
+    renamed_df = filtered_customers.rename(columns={
+        "Customer ID": "ID",
+        "x": "X",
+        "y": "Y",
+        "Demanded Mass": "Demand"
+    })
+
+    selected_columns = ["ID", "X", "Y", "Demand"]
+    selected_df = renamed_df[selected_columns]
+
+    # 🔍 Schritt 3: Filter auf Kunden-ID anwenden
+    customer_row = selected_df[selected_df["ID"] == customer]
+
+    # ✅ Ergebnis prüfen
+    nodes_list = customer_row.to_dict(orient="records")
+    if not nodes_list:
+        raise ValueError(f"No customer found with ID {customer}")
+
+    return nodes_list[0]
+
 def write_json_file_transformation(instance:str,
                                     perm:list[int],
                                     filtered_data,
@@ -159,7 +185,7 @@ def write_json_file_transformation(instance:str,
     nodes_json = []
     for customer in perm:
         
-        nodes = extract_customer_information(filtered_data["customers"], customer)
+        nodes = extract_customer_information_new(filtered_data["customers"], customer)
 
         node_items = []
         for _, single_demand in filtered_data["single_demands"][filtered_data["single_demands"]["Customer ID"] == str(customer)].iterrows():
@@ -176,9 +202,8 @@ def write_json_file_transformation(instance:str,
                     "Length": int(first_item["Length"]),
                     "Width": int(first_item["Width"]),
                     "Height": int(first_item["Height"]),
-                    "Volume": int(first_item["Volume"]),
                     "Fragility": fragile_output,
-                    "EnableHorizontalRotation": int(True),
+                    "EnableHorizontalRotation": True,
                     "Rotated": "None"
                 })
 
@@ -210,7 +235,7 @@ def write_json_file(instance:str,
     nodes_json = []
     for customer in perm:
         
-        nodes = extract_customer_information(filtered_data["customers"], customer)
+        node = extract_customer_information(filtered_data["customers"], customer)
 
         node_items = []
         for _, single_demand in filtered_data["single_demands"][filtered_data["single_demands"]["Customer ID"] == str(customer)].iterrows():
@@ -233,8 +258,8 @@ def write_json_file(instance:str,
                     "Rotated": "None"
                 })
 
-        nodes.update({"Items": node_items})
-        nodes_json.append(nodes)
+        node.update({"Items": node_items})
+        nodes_json.append(node)
 
     name_in_file = filename.split("/")[-1].split(".")[0]
     data = {
