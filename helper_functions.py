@@ -294,20 +294,11 @@ def generate_instances(instance:str,
         int: Number of instances created
     '''
 
-    # Generate current datetime string: DDMMYY_HHMMSS
-    # Get current datetime with microseconds
-    #now = datetime.now()
-    #formatted_datetime = now.strftime('%d%m%y_%H%M%S')  # Date and time
-    #milliseconds = f"{now.microsecond // 1000:03d}"     # Convert microseconds to milliseconds
-
-    # Combine them
-    #formatted_date = f"{formatted_datetime}_{milliseconds}"
-
     # Create dict with filtered dataframes
     filtered_data = get_filtered_data(instance, df, aggregate_demands, single_demands, items, customers)
 
-    # Calculate bounds for number of customers
-    upper_bound, max_customers = calculate_bounds(filtered_data["instance"])
+    # Retrieve max customers
+    max_customers = filtered_data["instance"]["Number of Customers"].values[0]
 
     #Create list with dummy values for customers
     numbers = list(range(1, max_customers + 1))
