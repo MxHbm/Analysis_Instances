@@ -273,13 +273,17 @@ def write_json_file(instance:str,
 
 
 
-def generate_instances(instance:str, df:pd.DataFrame,
+def generate_instances(instance:str,
+                       df:pd.DataFrame,
                        aggregate_demands:pd.DataFrame,
                        single_demands:pd.DataFrame,
                        items:pd.DataFrame,
                        customers:pd.DataFrame,
                        write_txt_file_bool:bool,
-                       file_path) -> int:
+                       file_path,
+                       multiplierCustomerNumber:int = 2,
+                       attemptLimit:int = 40, 
+                       succesfulInstancesThreshold: int = 40) -> int:
     '''
         Generate train instances with specific customer routes and demands
     Args:       
@@ -306,7 +310,6 @@ def generate_instances(instance:str, df:pd.DataFrame,
 
     # Calculate bounds for number of customers
     upper_bound, max_customers = calculate_bounds(filtered_data["instance"])
-    max_customers = filtered_data["instance"]["Number of Customers"].values[0]
 
     #Create list with dummy values for customers
     numbers = list(range(1, max_customers + 1))
@@ -317,48 +320,76 @@ def generate_instances(instance:str, df:pd.DataFrame,
 
     #Counter for created instances
     total_created = 0
-
-    random.seed(42)
-
+    total_duplicates = 0
     # Cache dicts for aggregated demand to avoid repeated lookups
     agg_volume_dict = dict(zip(filtered_data["agg_demands"]["Customer ID"].astype(int),
                            filtered_data["agg_demands"]["Agg Volume"]))
     agg_mass_dict = dict(zip(filtered_data["agg_demands"]["Customer ID"].astype(int),
                          filtered_data["agg_demands"]["Agg Mass"]))
-
-    #Define range of possible number of customers
-    num_customers_list = random.sample(numbers[4:], min(len(numbers[4:]), int(np.floor(upper_bound)) + 10))
+    
     #Create instances with random number of customers
-    for num_customers in num_customers_list:
+    exit_outer_loop = False
 
-        for j in range(num_customers):
-            feasible = True
+    for num_customers in numbers[1:]:
+
+        if exit_outer_loop: break
+
+        print(f"Generating for {num_customers} customers")
+        checked_routes_set = {(0,0)}
+
+        exit_outer_loop_counter = 0
+
+        for j in range(num_customers * multiplierCustomerNumber):
+
+            succesful_instances = 0
             attempts = 0
+            breakup = 0
+            found_succesful_tour = False
 
-            while(feasible and attempts < 10):
-                #Create random permutation of customers
+            while(succesful_instances < succesfulInstancesThreshold):
+
                 perm = random.sample(numbers, num_customers)
+                if tuple(perm) in checked_routes_set: 
+                    total_duplicates += 1
+                    continue
+
+                checked_routes_set.add(tuple(perm))
 
                 total_volume = sum(agg_volume_dict.get(c, 0) for c in perm)
                 total_weight = sum(agg_mass_dict.get(c, 0) for c in perm)
 
-
                 if total_volume > max_volume or total_weight > max_weight:
                     attempts += 1
+                else:
+
+                    perm.insert(0, 0) #Add depot at the beginning, if feasible
+
+                    if write_txt_file_bool:
+                        write_txt_file(instance, num_customers, j * succesfulInstancesThreshold + succesful_instances, perm, filtered_data, file_path, formatted_date)
+                    else: 
+                        write_json_file(instance,num_customers, j * succesfulInstancesThreshold + succesful_instances, perm, filtered_data, file_path, formatted_date)
+
+                    succesful_instances += 1
+                    total_created += 1
+                    attempts = 0
+                    breakup = 0
+                    found_succesful_tour = True
                     continue
 
-                feasible = False
+                if(attempts >= attemptLimit):
+                    attempts = 0
+                    breakup += 1
 
-                perm.insert(0, 0) #Add depot at the beginning, if feasible
-                
-                if write_txt_file_bool:
-                    write_txt_file(instance, num_customers, j, perm, filtered_data, file_path, formatted_date)
-                else: 
-                    write_json_file(instance,num_customers,j, perm, filtered_data, file_path, formatted_date)
+                if(breakup >= succesfulInstancesThreshold):
+                    if(not found_succesful_tour):
+                        exit_outer_loop_counter += 1
+                        #print(f"Current j: {j} - Exit outer loop: {exit_outer_loop_counter} with current breakups {breakup}")
+                    break
 
-                total_created += 1
+        if exit_outer_loop_counter >= num_customers * multiplierCustomerNumber: 
+            exit_outer_loop = True
 
-    return total_created
+    return total_created, total_duplicates
 
 
 def transform_instances(instance:str, df:pd.DataFrame,
