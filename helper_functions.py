@@ -103,10 +103,9 @@ def write_txt_file(instance:str,
                    j:int,
                    perm:list[int],
                    filtered_data,
-                   file_path,
-                   date) -> None:
+                   file_path) -> None:
      
-    filename = f"{file_path}/{instance}_{num_customers}_{j}_{date}.txt"
+    filename = f"{file_path}/{instance}_{num_customers}_{j}.txt"
 
     #Write instance file
     with open(filename, "w") as file:
@@ -225,10 +224,9 @@ def write_json_file(instance:str,
                     j:int,
                     perm:list[int],
                     filtered_data,
-                    file_path,
-                    date) -> None:
+                    file_path) -> None:
      
-    filename = f"{file_path}/{instance}_{num_customers}_{j}_{date}.json"
+    filename = f"{file_path}/{instance}_{num_customers}_{j}.json"
 
     vehicles_json = get_vehicle_dataframe(filtered_data["instance"])
 
@@ -298,12 +296,12 @@ def generate_instances(instance:str,
 
     # Generate current datetime string: DDMMYY_HHMMSS
     # Get current datetime with microseconds
-    now = datetime.now()
-    formatted_datetime = now.strftime('%d%m%y_%H%M%S')  # Date and time
-    milliseconds = f"{now.microsecond // 1000:03d}"     # Convert microseconds to milliseconds
+    #now = datetime.now()
+    #formatted_datetime = now.strftime('%d%m%y_%H%M%S')  # Date and time
+    #milliseconds = f"{now.microsecond // 1000:03d}"     # Convert microseconds to milliseconds
 
     # Combine them
-    formatted_date = f"{formatted_datetime}_{milliseconds}"
+    #formatted_date = f"{formatted_datetime}_{milliseconds}"
 
     # Create dict with filtered dataframes
     filtered_data = get_filtered_data(instance, df, aggregate_demands, single_demands, items, customers)
@@ -365,9 +363,9 @@ def generate_instances(instance:str,
                     perm.insert(0, 0) #Add depot at the beginning, if feasible
 
                     if write_txt_file_bool:
-                        write_txt_file(instance, num_customers, j * succesfulInstancesThreshold + succesful_instances, perm, filtered_data, file_path, formatted_date)
+                        write_txt_file(instance, num_customers, j * succesfulInstancesThreshold + succesful_instances, perm, filtered_data, file_path)
                     else: 
-                        write_json_file(instance,num_customers, j * succesfulInstancesThreshold + succesful_instances, perm, filtered_data, file_path, formatted_date)
+                        write_json_file(instance,num_customers, j * succesfulInstancesThreshold + succesful_instances, perm, filtered_data, file_path)
 
                     succesful_instances += 1
                     total_created += 1
