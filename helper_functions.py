@@ -331,8 +331,6 @@ def generate_instances(instance:str,
     for num_customers in numbers[1:]:
 
         if exit_outer_loop: break
-
-        print(f"Generating for {num_customers} customers")
         checked_routes_set = {(0,0)}
 
         exit_outer_loop_counter = 0
