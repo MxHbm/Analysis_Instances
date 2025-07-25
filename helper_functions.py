@@ -338,7 +338,7 @@ def generate_instances(instance:str,
                 perm = random.sample(numbers, num_customers)
                 if tuple(perm) in checked_routes_set: 
                     total_duplicates += 1
-                    continue
+                    breakup += 1
 
                 checked_routes_set.add(tuple(perm))
 
