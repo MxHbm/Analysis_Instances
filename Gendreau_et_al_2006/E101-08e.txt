@@ -1,4 +1,4 @@
-Name				3l_cvrp25
+Name				E101-08e
 Number_of_Customers		100
 Number_of_Items			193
 Number_of_ItemTypes		193

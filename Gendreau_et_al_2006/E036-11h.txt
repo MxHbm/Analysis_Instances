@@ -1,4 +1,4 @@
-Name				3l_cvrp16
+Name				E036-11h
 Number_of_Customers		35
 Number_of_Items			63
 Number_of_ItemTypes		63

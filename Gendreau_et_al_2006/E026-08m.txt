@@ -1,4 +1,4 @@
-Name				3l_cvrp09
+Name				E026-08m
 Number_of_Customers		25
 Number_of_Items			50
 Number_of_ItemTypes		50

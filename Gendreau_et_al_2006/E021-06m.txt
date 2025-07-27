@@ -1,4 +1,4 @@
-Name				3l_cvrp04
+Name				E021-06m
 Number_of_Customers		20
 Number_of_Items			36
 Number_of_ItemTypes		36

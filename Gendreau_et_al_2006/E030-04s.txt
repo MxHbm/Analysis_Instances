@@ -1,4 +1,4 @@
-Name				3l_cvrp11
+Name				E030-04s
 Number_of_Customers		29
 Number_of_Items			58
 Number_of_ItemTypes		58

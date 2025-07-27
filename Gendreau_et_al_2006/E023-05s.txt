@@ -1,4 +1,4 @@
-Name				3l_cvrp08
+Name				E023-05s
 Number_of_Customers		22
 Number_of_Items			43
 Number_of_ItemTypes		43

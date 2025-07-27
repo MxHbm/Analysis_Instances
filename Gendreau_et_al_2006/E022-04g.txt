@@ -1,4 +1,4 @@
-Name				3l_cvrp05
+Name				E022-04g
 Number_of_Customers		21
 Number_of_Items			45
 Number_of_ItemTypes		45
