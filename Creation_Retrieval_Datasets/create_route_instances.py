@@ -3,7 +3,9 @@ from helper_functions import get_filtered_data, get_vehicle_dataframe
 import pandas as pd
 import os
 import random
+import time
 import json
+from itertools import product
 
 def extract_customer_information(filtered_customers:pd.DataFrame, customer:int) -> dict:
 
@@ -196,31 +198,42 @@ def main():
 
     # Convert list to DataFrame
     df = pd.DataFrame(instances_data)
-
-    random.seed(8)
-    save_file_path = r"C:\Users\mahu123a\Documents\Data_Classifier_Old\4_Gendreau_New_Instances_NewRoutePseudocode/test_input"
-    #random.seed(4) old run!
-    #instances = random.choices(df["Instance Name"], k=1)
+    
     instances = df["Instance Name"]
-    total_instances = 0
-    total_duplicates = 0
-    for selected_instance in instances:
-        success, duplicated = generate_instances(instance = selected_instance,
-                                                df = df,
-                                                aggregate_demands = aggregate_demands,
-                                                single_demands = single_demands,
-                                                items = items,
-                                                customers = customers,
-                                                file_path = save_file_path,
-                                                multiplierCustomerNumber = 5,
-                                                attemptLimit = 40, 
-                                                succesfulInstancesThreshold = 40)
-        
-        total_instances += success
-        total_duplicates += duplicated
-        print(f"Instance: {selected_instance} - Instances generated: {success} - Duplicates avoided: {duplicated}")
-       
-    print(f"Created instances: {total_instances} and avoided {total_duplicates} duplicates")
+    random.seed(8)
+    save_file_path_base = r"C:\Users\mahu123a\Documents\Data\RandomDataGeneration"
+    multiplierCustomerNumbers = [2,3,4]
+    attemptLimits = [20,30]
+    succesfulInstancesThresholds = [20,30]
+    for prod in product(multiplierCustomerNumbers,attemptLimits,succesfulInstancesThresholds):
+        start_time = time.time()
+        multiplierCustomerNumber, attemptLimit, succesfulInstancesThreshold = prod
+        sub_folder_name = f"RandomData_{multiplierCustomerNumber}_{attemptLimit}_{succesfulInstancesThreshold}"
+        os.makedirs(os.path.join(save_file_path_base,sub_folder_name),exist_ok=True)
+        output_file_path = os.path.join(save_file_path_base,sub_folder_name,"input")
+        os.makedirs(output_file_path,exist_ok=True)
+        os.makedirs(os.path.join(save_file_path_base,sub_folder_name,"output"),exist_ok=True)
+
+        total_instances = 0
+        total_duplicates = 0
+        for selected_instance in instances:
+            success, duplicated = generate_instances(instance = selected_instance,
+                                                    df = df,
+                                                    aggregate_demands = aggregate_demands,
+                                                    single_demands = single_demands,
+                                                    items = items,
+                                                    customers = customers,
+                                                    file_path = output_file_path,
+                                                    multiplierCustomerNumber = multiplierCustomerNumber,
+                                                    attemptLimit = attemptLimit, 
+                                                    succesfulInstancesThreshold = succesfulInstancesThreshold)
+            
+            total_instances += success
+            total_duplicates += duplicated
+            #print(f"{sub_folder_name} - Instance: {selected_instance} - Instances generated: {success} - Duplicates avoided: {duplicated}")
+        end_time = time.time()
+        worktime = round(end_time-start_time,2)
+        print(f"{sub_folder_name} - Created instances: {total_instances} and avoided {total_duplicates} duplicates in {worktime} s")
 
 if __name__ == "__main__":
     print("Creating instances...")
