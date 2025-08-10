@@ -5,7 +5,7 @@ import os
 import random
 import time
 import json
-from itertools import product
+from itertools import product, chain
 
 def extract_customer_information(filtered_customers:pd.DataFrame, customer:int) -> dict:
 
@@ -141,26 +141,27 @@ def generate_instances(instance:str,
                 if tuple(perm) in checked_routes_set: 
                     total_duplicates += 1
                     breakup += 1
-
-                checked_routes_set.add(tuple(perm))
-
-                total_volume = sum(agg_volume_dict.get(c, 0) for c in perm)
-                total_weight = sum(agg_mass_dict.get(c, 0) for c in perm)
-
-                if total_volume > max_volume or total_weight > max_weight:
-                    attempts += 1
                 else:
 
-                    perm.insert(0, 0) #Add depot at the beginning, if feasible
+                    checked_routes_set.add(tuple(perm))
 
-                    write_json_file(instance,num_customers, j * succesfulInstancesThreshold + succesful_instances, perm, filtered_data, file_path)
+                    total_volume = sum(agg_volume_dict.get(c, 0) for c in perm)
+                    total_weight = sum(agg_mass_dict.get(c, 0) for c in perm)
 
-                    succesful_instances += 1
-                    total_created += 1
-                    attempts = 0
-                    breakup = 0
-                    found_succesful_tour = True
-                    continue
+                    if total_volume > max_volume or total_weight > max_weight:
+                        attempts += 1
+                    else:
+
+                        perm.insert(0, 0) #Add depot at the beginning, if feasible
+
+                        write_json_file(instance,num_customers, j * succesfulInstancesThreshold + succesful_instances, perm, filtered_data, file_path)
+
+                        succesful_instances += 1
+                        total_created += 1
+                        attempts = 0
+                        breakup = 0
+                        found_succesful_tour = True
+                        continue
 
                 if(attempts >= attemptLimit):
                     attempts = 0
@@ -205,9 +206,8 @@ def main():
     multiplierCustomerNumbers = [2,3,4]
     attemptLimits = [20,30]
     succesfulInstancesThresholds = [20,30]
-    for prod in product(multiplierCustomerNumbers,attemptLimits,succesfulInstancesThresholds):
+    for multiplierCustomerNumber, attemptLimit, succesfulInstancesThreshold in chain(product(multiplierCustomerNumbers, attemptLimits, succesfulInstancesThresholds), [(5, 40, 40)]):
         start_time = time.time()
-        multiplierCustomerNumber, attemptLimit, succesfulInstancesThreshold = prod
         sub_folder_name = f"RandomData_{multiplierCustomerNumber}_{attemptLimit}_{succesfulInstancesThreshold}"
         os.makedirs(os.path.join(save_file_path_base,sub_folder_name),exist_ok=True)
         output_file_path = os.path.join(save_file_path_base,sub_folder_name,"input")
