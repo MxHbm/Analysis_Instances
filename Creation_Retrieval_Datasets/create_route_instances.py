@@ -185,7 +185,7 @@ def main():
     single_demands = pd.DataFrame()
     aggregate_demands = pd.DataFrame()
     customers = pd.DataFrame()
-    for folder_path in ["Data/Gendreau_et_al_2006"]:
+    for folder_path in ["Data/Krebs_Ehmke_Koch_2021"]:
         for file_name in os.listdir(folder_path):
             if file_name.endswith(".txt"):
                 if file_name != "Overview.txt":
@@ -199,14 +199,16 @@ def main():
 
     # Convert list to DataFrame
     df = pd.DataFrame(instances_data)
-    
-    instances = df["Instance Name"]
+
+
+    instances = [file.split(".json")[0] for file in os.listdir("Data/RandomSet_krebs")]
     random.seed(8)
-    save_file_path_base = r"C:\Users\mahu123a\Documents\Data\RandomDataGeneration"
-    multiplierCustomerNumbers = [2,3,4]
-    attemptLimits = [20,30]
-    succesfulInstancesThresholds = [20,30]
-    for multiplierCustomerNumber, attemptLimit, succesfulInstancesThreshold in chain(product(multiplierCustomerNumbers, attemptLimits, succesfulInstancesThresholds), [(5, 40, 40)]):
+    save_file_path_base = r"H:\Data\RandomDataGeneration_Krebs"
+    multiplierCustomerNumbers = [1,2,3]
+    attemptLimits = [10,20]
+    succesfulInstancesThresholds = [10,20]
+    for multiplierCustomerNumber, attemptLimit, succesfulInstancesThreshold in product(multiplierCustomerNumbers, attemptLimits, succesfulInstancesThresholds):
+        
         start_time = time.time()
         sub_folder_name = f"RandomData_{multiplierCustomerNumber}_{attemptLimit}_{succesfulInstancesThreshold}"
         os.makedirs(os.path.join(save_file_path_base,sub_folder_name),exist_ok=True)
