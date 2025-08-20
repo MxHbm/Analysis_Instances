@@ -204,9 +204,9 @@ def main():
     instances = [file.split(".json")[0] for file in os.listdir("Data/RandomSet_krebs")]
     random.seed(8)
     save_file_path_base = r"H:\Data\RandomDataGeneration_Krebs"
-    multiplierCustomerNumbers = [1,2,3]
-    attemptLimits = [10,20]
-    succesfulInstancesThresholds = [10,20]
+    multiplierCustomerNumbers = [1]
+    attemptLimits = [1,2,3]
+    succesfulInstancesThresholds = [1,2,3]
     for multiplierCustomerNumber, attemptLimit, succesfulInstancesThreshold in product(multiplierCustomerNumbers, attemptLimits, succesfulInstancesThresholds):
         
         start_time = time.time()
