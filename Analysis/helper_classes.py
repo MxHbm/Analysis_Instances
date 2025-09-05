@@ -260,12 +260,14 @@ class Instance:
                         mass_aggregate = 0
                         volume_aggregate = 0
                         quantity_aggregate = 0
+                        fragility_share = 0
                         for i in range(1, len(parts), 2):
                                 for item in self.items:
                                     if item.type == parts[i]:
                                         quantity_aggregate += int(parts[i + 1])
                                         mass_aggregate += item.mass * int(parts[i + 1])
                                         volume_aggregate += item.volume * int(parts[i + 1])
+                                        fragility_share += item.fragility * int(parts[i + 1])
 
                         agg_demand = {"Folder Name": self.folder_name, 
                                       "Instance Name": self.name,
@@ -273,6 +275,7 @@ class Instance:
                                       "Agg Quantity": quantity_aggregate,
                                       "Agg Mass": mass_aggregate,
                                       "Agg Volume": volume_aggregate,
+                                      "Agg Fragility": fragility_share / quantity_aggregate,
                                       "Agg Volume Ratio": volume_aggregate / self.cargo_volume,
                                       "Agg Mass Ratio": mass_aggregate / self.vehicle_capacity}
                         self.aggregated_demands.append(agg_demand)

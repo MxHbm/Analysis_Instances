@@ -191,7 +191,7 @@ def main():
     single_demands = pd.DataFrame()
     aggregate_demands = pd.DataFrame()
     customers = pd.DataFrame()
-    for folder_path in ["Data/Gendreau_et_al_2006"]:
+    for folder_path in ["Data/Krebs_Ehmke_Koch_2021"]:
         for file_name in os.listdir(folder_path):
             if file_name.endswith(".txt"):
                 if file_name != "Overview.txt":
@@ -204,8 +204,7 @@ def main():
                     customers = pd.concat([customers,instance.customers])
 
     # Convert list to DataFrame
-    df = pd.DataFrame(instances_data)
-    
+    df = pd.DataFrame(instances_data)    
     instances = df["Instance Name"]
     save_file_path_base = r"H:\Data\Random_Data\Gendreau"
     multiplierCustomerNumbers = []
