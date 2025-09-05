@@ -83,7 +83,8 @@ def generate_instances(instance:str,
                        file_path,
                        multiplierCustomerNumber:int = 2,
                        attemptLimit:int = 40, 
-                       succesfulInstancesThreshold: int = 40) -> int:
+                       succesfulInstancesThreshold: int = 40,
+                       cap:float = 1.0) -> int:
     '''
         Generate train instances with specific customer routes and demands
     Args:       
@@ -95,7 +96,11 @@ def generate_instances(instance:str,
     Returns:
         int: Number of instances created
     '''
-
+    #maximum value
+    MAX = 1.0
+    # seed random new
+    random.seed(42 + multiplierCustomerNumber + attemptLimit + succesfulInstancesThreshold)
+    
     # Create dict with filtered dataframes
     filtered_data = get_filtered_data(instance, df, aggregate_demands, single_demands, items, customers)
 
@@ -144,11 +149,12 @@ def generate_instances(instance:str,
                 else:
 
                     checked_routes_set.add(tuple(perm))
+                    defined_cap = round(random.uniform(cap,MAX),2)
 
                     total_volume = sum(agg_volume_dict.get(c, 0) for c in perm)
                     total_weight = sum(agg_mass_dict.get(c, 0) for c in perm)
 
-                    if total_volume > max_volume or total_weight > max_weight:
+                    if total_volume > max_volume * defined_cap or total_weight > max_weight * defined_cap:
                         attempts += 1
                     else:
 
@@ -198,17 +204,15 @@ def main():
                     customers = pd.concat([customers,instance.customers])
 
     # Convert list to DataFrame
-    df = pd.DataFrame(instances_data)
-
-
-    instances = [file.split(".json")[0] for file in os.listdir("Data/RandomSet_krebs")]
-    random.seed(8)
-    save_file_path_base = r"H:\Data\RandomDataGeneration_Krebs"
-    multiplierCustomerNumbers = [1]
-    attemptLimits = [1,2,3]
-    succesfulInstancesThresholds = [1,2,3]
-    for multiplierCustomerNumber, attemptLimit, succesfulInstancesThreshold in product(multiplierCustomerNumbers, attemptLimits, succesfulInstancesThresholds):
-        
+    df = pd.DataFrame(instances_data)    
+    instances = df["Instance Name"]
+    save_file_path_base = r"H:\Data\Random_Data\Gendreau"
+    multiplierCustomerNumbers = []
+    attemptLimits = []
+    succesfulInstancesThresholds = []
+    caps = []
+    for multiplierCustomerNumber, attemptLimit, succesfulInstancesThreshold, cap in chain(product(multiplierCustomerNumbers, attemptLimits, succesfulInstancesThresholds),
+                                                                                          [(3, 30, 30, 0.8)],[(4, 30, 30, 0.8)],[(5, 40, 40, 0.8)]):
         start_time = time.time()
         sub_folder_name = f"RandomData_{multiplierCustomerNumber}_{attemptLimit}_{succesfulInstancesThreshold}"
         os.makedirs(os.path.join(save_file_path_base,sub_folder_name),exist_ok=True)
@@ -228,7 +232,8 @@ def main():
                                                     file_path = output_file_path,
                                                     multiplierCustomerNumber = multiplierCustomerNumber,
                                                     attemptLimit = attemptLimit, 
-                                                    succesfulInstancesThreshold = succesfulInstancesThreshold)
+                                                    succesfulInstancesThreshold = succesfulInstancesThreshold,
+                                                    cap = cap)
             
             total_instances += success
             total_duplicates += duplicated
