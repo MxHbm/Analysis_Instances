@@ -149,12 +149,13 @@ def generate_instances(instance:str,
                 else:
 
                     checked_routes_set.add(tuple(perm))
-                    defined_cap = round(random.uniform(cap,MAX),2)
+                    defined_vol_cap = round(random.uniform(cap,MAX),2)
+                    defined_weight_cap = round(random.uniform(cap,MAX),2)
 
                     total_volume = sum(agg_volume_dict.get(c, 0) for c in perm)
                     total_weight = sum(agg_mass_dict.get(c, 0) for c in perm)
 
-                    if total_volume > max_volume * defined_cap or total_weight > max_weight * defined_cap:
+                    if total_volume > (max_volume * defined_vol_cap) or total_weight > (max_weight * defined_weight_cap):
                         attempts += 1
                     else:
 
@@ -191,7 +192,7 @@ def main():
     single_demands = pd.DataFrame()
     aggregate_demands = pd.DataFrame()
     customers = pd.DataFrame()
-    for folder_path in ["Data/Krebs_Ehmke_Koch_2021"]:
+    for folder_path in ["Data/Gendreau_et_al_2006"]:
         for file_name in os.listdir(folder_path):
             if file_name.endswith(".txt"):
                 if file_name != "Overview.txt":
@@ -207,14 +208,15 @@ def main():
     df = pd.DataFrame(instances_data)    
     instances = df["Instance Name"]
     save_file_path_base = r"H:\Data\Random_Data\Gendreau"
-    multiplierCustomerNumbers = []
-    attemptLimits = []
-    succesfulInstancesThresholds = []
-    caps = []
-    for multiplierCustomerNumber, attemptLimit, succesfulInstancesThreshold, cap in chain(product(multiplierCustomerNumbers, attemptLimits, succesfulInstancesThresholds),
-                                                                                          [(3, 30, 30, 0.8)],[(4, 30, 30, 0.8)],[(5, 40, 40, 0.8)]):
+    multiplierCustomerNumbers = [2,3,4]
+    attemptLimits = [30]
+    succesfulInstancesThresholds = [20,30]
+    caps = [0.6,0.8]
+    for multiplierCustomerNumber, attemptLimit, succesfulInstancesThreshold, cap in chain(product(multiplierCustomerNumbers, attemptLimits, succesfulInstancesThresholds,caps),
+                                                                                          [(5, 40, 40, 0.6)],[(5, 40, 40, 0.8)]):
         start_time = time.time()
-        sub_folder_name = f"RandomData_{multiplierCustomerNumber}_{attemptLimit}_{succesfulInstancesThreshold}"
+        folder_add = int(cap * 10)
+        sub_folder_name = f"RandomData_{multiplierCustomerNumber}_{attemptLimit}_{succesfulInstancesThreshold}_{folder_add}"
         os.makedirs(os.path.join(save_file_path_base,sub_folder_name),exist_ok=True)
         output_file_path = os.path.join(save_file_path_base,sub_folder_name,"input")
         os.makedirs(output_file_path,exist_ok=True)
