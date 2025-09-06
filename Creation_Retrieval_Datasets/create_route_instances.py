@@ -187,12 +187,25 @@ def generate_instances(instance:str,
 
 #Alternative create csv for dataframes to avoid loading all instances every time
 def main(): 
+
+    DATASET = "Krebs" # or DATASET = "Gendreau"
+
+
+    if DATASET == "Krebs": 
+        data_path = "Data/Krebs_Ehmke_Koch_2021"
+        save_file_path_base = r"H:\Data\Random_Data\Krebs"
+    elif DATASET == "Gendreau":
+        data_path = "Data/Gendreau_et_al_2006"
+        save_file_path_base = r"H:\Data\Random_Data\Gendreau"
+    else: 
+        raise NameError("Dataset not specified!")
+
     instances_data = []
     items = pd.DataFrame()
     single_demands = pd.DataFrame()
     aggregate_demands = pd.DataFrame()
     customers = pd.DataFrame()
-    for folder_path in ["Data/Gendreau_et_al_2006"]:
+    for folder_path in [data_path]:
         for file_name in os.listdir(folder_path):
             if file_name.endswith(".txt"):
                 if file_name != "Overview.txt":
@@ -205,15 +218,21 @@ def main():
                     customers = pd.concat([customers,instance.customers])
 
     # Convert list to DataFrame
-    df = pd.DataFrame(instances_data)    
-    instances = df["Instance Name"]
-    save_file_path_base = r"H:\Data\Random_Data\Gendreau"
-    multiplierCustomerNumbers = [2,3,4]
-    attemptLimits = [30]
-    succesfulInstancesThresholds = [20,30]
+    df = pd.DataFrame(instances_data)   
+
+    # Select instance names
+    if DATASET == "Krebs": 
+        instances = [filename.split(".json")[0] for filename in os.listdir("Data/RandomSet_krebs")]
+    elif DATASET == "Gendreau": 
+        instances = df["Instance Name"]
+    else: 
+        raise NameError("Dataset not specified!")
+
+    multiplierCustomerNumbers = [1]
+    attemptLimits = [1]
+    succesfulInstancesThresholds = [1]
     caps = [0.6,0.8]
-    for multiplierCustomerNumber, attemptLimit, succesfulInstancesThreshold, cap in chain(product(multiplierCustomerNumbers, attemptLimits, succesfulInstancesThresholds,caps),
-                                                                                          [(5, 40, 40, 0.6)],[(5, 40, 40, 0.8)]):
+    for multiplierCustomerNumber, attemptLimit, succesfulInstancesThreshold, cap in chain(product(multiplierCustomerNumbers, attemptLimits, succesfulInstancesThresholds,caps)):
         start_time = time.time()
         folder_add = int(cap * 10)
         sub_folder_name = f"RandomData_{multiplierCustomerNumber}_{attemptLimit}_{succesfulInstancesThreshold}_{folder_add}"
